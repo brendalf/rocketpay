@@ -1,6 +1,7 @@
 name: Elixir CI
 env:
   MIX_ENV: test
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 on:
   push:
@@ -48,4 +49,4 @@ jobs:
       run: mix test
 
     - name: Run Coveralls
-      run: mix coveralls
+      run: mix coveralls.github
