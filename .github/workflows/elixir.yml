@@ -1,0 +1,51 @@
+name: Elixir CI
+env:
+  MIX_ENV: test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    name: Build and test
+    runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: postgres:11
+        ports: ['5432:5432']
+        env:
+          POSTGRES_PASSWORD: rocketpay
+          POSTGRES_USER: rocketpay
+        options: >-
+          --health-cmd pg_isready 
+          --health-interval 10s 
+          --health-timeout 5s 
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-elixir@v1
+      with:
+        otp-version: '23.2'
+        elixir-version: '1.11.2'
+        experimental-otp: true
+
+    - name: Install Dependencies
+      run: mix deps.get
+
+    - name: Build
+      run: mix compile
+
+    - name: Run Lint
+      run: mix credo
+
+    - name: Run Tests
+      run: mix test
+
+    - name: Run Coveralls
+      run: mix coveralls
